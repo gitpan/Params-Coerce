@@ -1,5 +1,8 @@
 Revision history for Perl extension Param::Coerce
 
+0.09 Fri Apr 22 2005
+	- Updating the author email to that META.yaml doesn't break
+
 0.08 Fri Apr 22 2005
 	- Moved to Params::Coerce in line with other similar modules
 

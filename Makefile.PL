@@ -2,7 +2,7 @@ use inc::Module::Install;
 
 name          ( 'Params-Coerce');
 abstract      ( 'Allows your classes to do coercion of parameters');
-author        ( '"Adam Kennedy" <cpan@ali.as>');
+author        ( 'Adam Kennedy <cpan@ali.as>');
 version_from  ( 'lib/Params/Coerce.pm');
 license       ( 'perl');
 
