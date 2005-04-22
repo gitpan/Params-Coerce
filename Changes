@@ -1,0 +1,29 @@
+Revision history for Perl extension Param::Coerce
+
+0.08 Fri Apr 22 2005
+	- Moved to Params::Coerce in line with other similar modules
+
+0.07 Tue Feb 15 2005
+	- Removing braindead Build.PL
+
+0.06  Mon Oct 11 2004
+	- Fixed a class loading bug
+
+0.05  Wed Oct  6 2004
+	- Moved to a more flexible hint format
+
+0.04  Sun Oct  4 2004
+	- Added support for __from methods
+	- Cut load overhead down to 52k
+
+0.03  Sat Oct  3 2004
+	- Cut load overhead down to 56k
+
+0.02  Sat Oct  3 2004
+	- Tried to make the documentation a bit more readable
+
+0.01  Sat Oct  2 2004
+	- Completed the first implementation
+
+0.01_01 Sat Oct  2 2004
+	- Create the specification for the module
