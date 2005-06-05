@@ -56,20 +56,21 @@ The L<overload> pragma, and its string overloading is the form of coercion
 you are most likely to have encountered in Perl programming. In this case,
 your object is automatically (within perl itself) coerced into a string.
 
-Params::Coerce is intended for higher-order coercion between various types of
-different objects, for use mainly in subroutine and (mostly) method
-parameters, particularly on external APIs.
+C<Params::Coerce> is intended for higher-order coercion between various
+types of different objects, for use mainly in subroutine and (mostly)
+method parameters, particularly on external APIs.
 
 =head2 __as_Another_Class Methods
 
-At the heart of Params::Coerce is the ability to transform objects from one
-thing to another. This can be done by a variety of different mechanisms.
+At the heart of C<Params::Coerce> is the ability to transform objects from
+one thing to another. This can be done by a variety of different
+mechanisms.
 
 The prefered mechanism for this is by creating a specially named method
 in a class that indicates it can be coerced into another type of object.
 
 As an example, L<HTML::Location> provides an object method that returns an
-equivalent URI object.
+equivalent L<URI> object.
 
   # In the package HTML::Location
   
@@ -81,10 +82,10 @@ equivalent URI object.
 
 =head2 __from_Another_Class Methods
 
-From version 0.04 of Params::Coerce, you may now also provide
+From version 0.04 of C<Params::Coerce>, you may now also provide
 __from_Another_Class methods as well. In the above example, rather then
-having to define a method in HTML::Location, you may instead define one in
-URI. The following code has an identical effect.
+having to define a method in L<HTML::Location>, you may instead define
+one in L<URI>. The following code has an identical effect.
 
   # In the package URI
   
@@ -94,20 +95,20 @@ URI. The following code has an identical effect.
   	return URI->new( $Location->uri );
   }
 
-Params::Coerce will only look for the __from method, if it does not find a __as
-method.
+C<Params::Coerce> will only look for the __from method, if it does not
+find a __as method.
 
 =head2 Loading Classes
 
 One thing to note with the C<__as_Another_Class> methods is that you are
- B<not> required to load the class you are converting to in the class you are
-converting from.
+B<not> required to load the class you are converting to in the class you
+are converting from.
 
-In the above example, HTML::Location does B<not> have to load the URI class.
-The need to load the classes for every object we might some day need to be
-coerced to would result in highly excessive resource usage.
+In the above example, L<HTML::Location> does B<not> have to load the URI
+class. The need to load the classes for every object we might some day need
+to be coerced to would result in highly excessive resource usage.
 
-Instead, Params::Coerce guarentees that the class you are converting to
+Instead, C<Params::Coerce> guarentees that the class you are converting to
 C<will> be loaded before it calls the __as_Another_Class method. Of course,
 in most situations you will have already loaded it for another purpose in
 either the From or To classes and this won't be an issue.
@@ -162,10 +163,36 @@ parameters in a coercing manner.
   	my $class = shift;
 
 	# Take a URI as parameter
-  	my $URI = $class->_URI(shift) or return;
-  	
+  	my $URI1 = $class->_URI(shift) or return;
+  	my $URI2 = _URI(shift) or return;
   	...
   }
+
+=head2 The C<from> Constructor
+
+From version C<0.11> of C<Params::Coerce>, an additional mechanism is
+available with the importable C<from> constructor.
+
+  package My::Class;
+  
+  use Params::Coerce 'from';
+  
+  package Other::Class;
+  
+  sub method {
+  	my $self = shift;
+  	my $My   = My::Class->from(shift) or die "Bad param";
+  	...
+  }
+
+This is mainly a convenience. The above is equivalent to
+
+  package My::Class;
+  
+  use Params::Coerce 'from' => 'Params::Coerce';
+
+In future versions, this C<-E<gt>from> syntax may also tweak the resolution
+order of the coercion.
 
 =head2 Chained Coercion
 
@@ -181,12 +208,15 @@ step is supported.
 use strict;
 use Carp         ();
 use Scalar::Util ();
+use Params::Util '_IDENTIFIER',
+                 '_INSTANCE',
+                 '_CLASS';
 
 # Load Overhead: 52k
 
 use vars qw{$VERSION};
 BEGIN {
-	$VERSION = '0.09';
+	$VERSION = '0.11';
 }
 
 # The hint cache
@@ -201,25 +231,31 @@ my %hints = ();
 
 sub import {
 	my $class = shift;
-	return unless @_; # Nothing to do
-	die "Too many parameters" if @_ > 2; # Um, what?
+	my @param = @_ or return;
+	die "Too many parameters" if @param > 2; # Um, what?
 
 	# We'll need to know who is calling us
 	my $pkg = caller();
 
 	# We export them the coerce function if they want it
-	if ( @_ == 1 ) {
-		Carp::croak "Params::Coerce does not export '$_[0]'" unless $_[0] eq 'coerce';
-		no strict 'refs';
-		*{"${pkg}::coerce"} = *coerce;
-		return 1;
+	if ( @param == 1 ) {
+		if ( $param[0] eq 'coerce' ) {
+			no strict 'refs';
+			*{"${pkg}::coerce"} = *coerce;
+			return 1;
+		} elsif ( $param[0] eq 'from' ) {
+			# They want a from constructor
+			@param = ( from => $pkg );
+		} else {
+			Carp::croak "Params::Coerce does not export '$_[0]'";
+		}
 	}
 
 	# The two argument form is 'method' => 'class'
 	# Check the values given to us.
-	my $method = _method($_[0])      or Carp::croak "Illegal method name '$_[0]'";
-	my $want   = _class($_[1])       or Carp::croak "Illegal class name '$_[1]'";
-	_function_exists($pkg, $method) and Carp::croak "Cannot create '${pkg}::$method'. It already exists";
+	my $method = _IDENTIFIER($param[0]) or Carp::croak "Illegal method name '$param[0]'";
+	my $want   = _CLASS($param[1])      or Carp::croak "Illegal class name '$param[1]'";
+	_function_exists($pkg, $method)    and Carp::croak "Cannot create '${pkg}::$method'. It already exists";
 
 	# Make sure the class is loaded
 	unless ( _loaded($want) ) {
@@ -228,7 +264,7 @@ sub import {
 	}
 
 	# Create the method in our caller
-	eval "package $pkg; sub $method { Params::Coerce::_coerce('$want', \$_[1]) }";
+	eval "package $pkg;\nsub $method {\n\tParams::Coerce::_coerce('$want', \$_[-1])\n}";
 	Carp::croak "Failed to create coercion method '$method' in $pkg': $@" if $@;
 
 	1;
@@ -253,8 +289,8 @@ Returns C<undef> if the parameter cannot be coerced into the class you wish.
 
 sub coerce($$) {
 	# Check what they want properly first
-	my $want = _class($_[0]) or Carp::croak "Illegal class name '$_[0]'";
-	_loaded($want) or Carp::croak "Tried to coerce to unloaded class '$want'";
+	my $want = _CLASS($_[0]) or Carp::croak "Illegal class name '$_[0]'";
+	_loaded($want)           or Carp::croak "Tried to coerce to unloaded class '$want'";
 
 	# Now call the real function
 	_coerce($want, $_[1]);
@@ -264,7 +300,7 @@ sub coerce($$) {
 # the first argument is FULLY validated.
 sub _coerce {
 	my $want = shift;
-	my $have = Scalar::Util::blessed $_[0] ? shift : return undef;
+	my $have = Scalar::Util::blessed($_[0]) ? shift : return undef;
 
 	# In the simplest case it is already what we need
 	return $have if $have->isa($want);
@@ -294,7 +330,7 @@ sub _coerce {
 	}
 
 	# Did we get what we wanted?
-	(Scalar::Util::blessed $have and $have->isa($want)) ? $have : undef
+	_INSTANCE($have, $want);
 }
 
 # Try to work out how to get from one class to the other class
@@ -329,20 +365,6 @@ sub _hint {
 #####################################################################
 # Support Functions
 
-# Validate a method
-sub _method {
-	my $name = (defined $_[0] and ! ref $_[0]) ? shift : return '';
-	$name =~ /^[^\W\d]\w*$/ ? $name : '';
-}
-
-# Validate a class name.
-sub _class {
-	my $name = (defined $_[0] and ! ref $_[0]) ? shift : return '';
-	return 'main' if $name eq '::';
-	$name =~ s/^::/main::/;
-	$name =~ /\A[^\W\d]\w*(?:(?:\'|::)[^\W\d]\w*)*\z/ ? $name : '';
-}
-
 # Is a class loaded.
 sub _loaded {
 	no strict 'refs';
@@ -375,17 +397,17 @@ L<overload> and other types of things.
 
 Bugs should always be submitted via the CPAN bug tracker
 
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Param%3A%3ACoerce>
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Param-Coerce>
 
 For other issues, contact the maintainer
 
 =head1 AUTHORS
 
-Adam Kennedy (Maintainer), L<http://ali.as/>, cpan@ali.as
+Adam Kennedy, L<http://ali.as/>, cpan@ali.as
 
 =head1 COPYRIGHT
 
-Copyright (c) 2004 Adam Kennedy. All rights reserved.
+Copyright (c) 2004 - 2005 Adam Kennedy. All rights reserved.
 This program is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.
 

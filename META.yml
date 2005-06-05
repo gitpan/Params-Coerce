@@ -1,5 +1,5 @@
 name: Params-Coerce
-version: 0.09
+version: 0.11
 abstract: Allows your classes to do coercion of parameters
 author: Adam Kennedy <cpan@ali.as>
 license: perl
@@ -11,6 +11,7 @@ requires:
   perl: 5.005
   Carp: 0
   Scalar::Util: 1.11
+  Params::Util: 0.05
 no_index:
   directory:
     - inc

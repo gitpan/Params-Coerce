@@ -1,5 +1,12 @@
 Revision history for Perl extension Param::Coerce
 
+0.11 Sun Jun  5 2005
+	- Added the ->from constructor to be imported
+	- Converted to Params::Util
+
+0.10 Sat Apr 23 2005
+	- Allowing param coercion methods to also work as functions
+
 0.09 Fri Apr 22 2005
 	- Updating the author email to that META.yaml doesn't break
 

@@ -15,10 +15,9 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 22;
+use Test::More tests => 34;
 use Params::Coerce;
 
-BEGIN { $DB::single = $DB::single = 1 }
 
 
 
@@ -70,6 +69,28 @@ ok( Params::Coerce::_function_exists('Foo::Bar::Usage3', '_Bar'), "use Params::C
 	isa_ok( $Usage->{Bar}, 'Bar' );	
 }
 
+{ # Usage 4
+	my $Bar = Bar->new; isa_ok( $Bar, 'Bar' );
+	my $Foo = Foo->new; isa_ok( $Foo, 'Foo' );
+	my $Usage = Foo::Bar::Usage4->new( $Bar );
+	isa_ok( $Usage, 'Foo::Bar::Usage4' );
+	isa_ok( $Usage->{Bar}, 'Bar' );
+	$Usage = Foo::Bar::Usage4->new( $Foo );
+	isa_ok( $Usage, 'Foo::Bar::Usage4' );
+	isa_ok( $Usage->{Bar}, 'Bar' );	
+}
+
+{ # Usage 5
+	my $Bar = Bar->new; isa_ok( $Bar, 'Bar' );
+	my $Foo = Foo->new; isa_ok( $Foo, 'Foo' );
+	my $Usage = Foo::Bar::Usage5->new( $Bar );
+	isa_ok( $Usage, 'Foo::Bar::Usage5' );
+	isa_ok( $Usage->{Bar}, 'Bar' );
+	$Usage = Foo::Bar::Usage5->new( $Foo );
+	isa_ok( $Usage, 'Foo::Bar::Usage5' );
+	isa_ok( $Usage->{Bar}, 'Bar' );	
+}
+
 { # __from coercion
 	my $Bar = Bar->new; isa_ok( $Bar, 'Bar' );
 	my $Foo = Params::Coerce::coerce 'Foo', $Bar;
@@ -77,6 +98,7 @@ ok( Params::Coerce::_function_exists('Foo::Bar::Usage3', '_Bar'), "use Params::C
 }
 
 
+	
 
 
 
@@ -84,6 +106,8 @@ ok( Params::Coerce::_function_exists('Foo::Bar::Usage3', '_Bar'), "use Params::C
 # Create all the testing packages we needed for this
 
 package Bar;
+
+use Params::Coerce 'from';
 
 sub new {
 	bless { }, shift;
@@ -104,7 +128,7 @@ use Params::Coerce;
 
 sub new {
 	my $class = shift;
-	my $Bar = Params::Coerce::coerce 'Bar', shift or die 'Params::Coerce::coerce usage test failed';
+	my $Bar   = Params::Coerce::coerce 'Bar', shift or die 'Params::Coerce::coerce usage test failed';
 	bless { Bar => $Bar }, $class;
 }
 
@@ -114,7 +138,7 @@ use Params::Coerce 'coerce';
 
 sub new {
 	my $class = shift;
-	my $Bar = coerce 'Bar', shift or die 'Imported coerce usage test failed';
+	my $Bar   = coerce 'Bar', shift or die 'Imported coerce usage test failed';
 	bless { Bar => $Bar }, $class;
 }
 
@@ -124,7 +148,25 @@ use Params::Coerce '_Bar' => 'Bar';
 
 sub new {
 	my $class = shift;
-	my $Bar = $class->_Bar(shift) or die 'Method usage test failed';
+	my $Bar   = $class->_Bar(shift) or die 'Method usage test failed';
+	bless { Bar => $Bar }, $class;
+}
+
+package Foo::Bar::Usage4;
+
+use Params::Coerce '_Bar' => 'Bar';
+
+sub new {
+	my $class = shift;
+	my $Bar   = _Bar(shift) or die 'Method usage test failed';
+	bless { Bar => $Bar }, $class;
+}
+
+package Foo::Bar::Usage5;
+
+sub new {
+	my $class = shift;
+	my $Bar   = Bar->from(shift) or die 'Method usage test failed';
 	bless { Bar => $Bar }, $class;
 }
 
