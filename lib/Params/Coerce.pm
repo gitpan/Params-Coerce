@@ -225,7 +225,7 @@ use Params::Util '_IDENTIFIER',
 
 use vars qw{$VERSION};
 BEGIN {
-	$VERSION = '0.12';
+	$VERSION = '0.13';
 }
 
 # The hint cache
@@ -241,7 +241,7 @@ my %hints = ();
 sub import {
 	my $class = shift;
 	my @param = @_ or return;
-	die "Too many parameters" if @param > 2; # Um, what?
+	Carp::croak("Too many parameters") if @param > 2; # Um, what?
 
 	# We'll need to know who is calling us
 	my $pkg = caller();
@@ -271,12 +271,12 @@ sub import {
 	# Make sure the class is loaded
 	unless ( _loaded($want) ) {
 		eval "require $want";
-		die $@ if $@;
+		croak($@) if $@;
 	}
 
 	# Create the method in our caller
 	eval "package $pkg;\nsub $method {\n\tParams::Coerce::_coerce('$want', \$_[-1])\n}";
-	Carp::croak "Failed to create coercion method '$method' in $pkg': $@" if $@;
+	Carp::croak("Failed to create coercion method '$method' in $pkg': $@") if $@;
 
 	1;
 }
@@ -300,8 +300,8 @@ Returns C<undef> if the parameter cannot be coerced into the class you wish.
 
 sub coerce($$) {
 	# Check what they want properly first
-	my $want = _CLASS($_[0]) or Carp::croak "Illegal class name '$_[0]'";
-	_loaded($want)           or Carp::croak "Tried to coerce to unloaded class '$want'";
+	my $want = _CLASS($_[0]) or Carp::croak("Illegal class name '$_[0]'");
+	_loaded($want)           or Carp::croak("Tried to coerce to unloaded class '$want'");
 
 	# Now call the real function
 	_coerce($want, $_[1]);
@@ -309,10 +309,10 @@ sub coerce($$) {
 
 # The from method that is imported into the classes
 sub from {
-	@_ == 2 or die "'from' must be called as a method with a single param";
+	@_ == 2 or Carp::croak("'->from must be called as a method with a single param");
 	_coerce(@_);
 }
-	
+
 # Internal version with less checks. Should ONLY be called once
 # the first argument is FULLY validated.
 sub _coerce {
@@ -343,7 +343,7 @@ sub _coerce {
 		no strict 'refs';
 		$have = &{"${pkg}::${function}"}($have);
 	} else {
-		die "Unknown coercion hint '$type$hint'";
+		Carp::croak("Unknown coercion hint '$type$hint'");
 	}
 
 	# Did we get what we wanted?

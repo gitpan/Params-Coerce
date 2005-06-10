@@ -1,5 +1,8 @@
 Revision history for Perl extension Param::Coerce
 
+0.13 Fri Jun 10 2005
+	- Converting a number of dies to Carp::croak (like they should be)
+
 0.12 Fri Jun 10 2005
 	- Made ->from work sanely with sub-classes
 
