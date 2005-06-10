@@ -1,5 +1,8 @@
 Revision history for Perl extension Param::Coerce
 
+0.12 Fri Jun 10 2005
+	- Made ->from work sanely with sub-classes
+
 0.11 Sun Jun  5 2005
 	- Added the ->from constructor to be imported
 	- Converted to Params::Util

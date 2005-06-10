@@ -8,8 +8,17 @@ Params::Coerce - Allows your classes to do coercion of parameters
 
 =head1 SYNOPSIS
 
-This example demonstrates a real world example, using the L<HTML::Location>
-module, which has been enabled for use with it.
+  # Coerce a object of class Foo to a Bar
+  my $bar = Params::Coerce::coerce('Bar', $Foo)
+  
+  # Create a coercion param function
+  use Params::Coerce '_Bar' => 'Bar';
+  my $bar = _Bar($Foo);
+  
+  # Usage when Bar has a 'from' method
+  my $bar = Bar->from($Foo);
+
+Real world example using L<HTML::Location>.
 
   # My class needs a URI
   package Web::Spider;
@@ -216,7 +225,7 @@ use Params::Util '_IDENTIFIER',
 
 use vars qw{$VERSION};
 BEGIN {
-	$VERSION = '0.11';
+	$VERSION = '0.12';
 }
 
 # The hint cache
@@ -245,7 +254,9 @@ sub import {
 			return 1;
 		} elsif ( $param[0] eq 'from' ) {
 			# They want a from constructor
-			@param = ( from => $pkg );
+			no strict 'refs';
+			*{"${pkg}::from"} = *from;
+			return 1;
 		} else {
 			Carp::croak "Params::Coerce does not export '$_[0]'";
 		}
@@ -296,6 +307,12 @@ sub coerce($$) {
 	_coerce($want, $_[1]);
 }
 
+# The from method that is imported into the classes
+sub from {
+	@_ == 2 or die "'from' must be called as a method with a single param";
+	_coerce(@_);
+}
+	
 # Internal version with less checks. Should ONLY be called once
 # the first argument is FULLY validated.
 sub _coerce {
