@@ -1,5 +1,10 @@
 Revision history for Perl extension Param::Coerce
 
+0.14 Tue 10 Oct 2006
+	- Moving from old CVS to new SVN repository
+	- Cleaning up tests to remove the File::Spec dependency
+	- Upgrading to Module::Install 0.64
+
 0.13 Fri Jun 10 2005
 	- Converting a number of dies to Carp::croak (like they should be)
 

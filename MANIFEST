@@ -1,6 +1,5 @@
 Changes
 inc/Module/Install.pm
-inc/Module/Install/AutoInstall.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
 inc/Module/Install/Fetch.pm
@@ -18,4 +17,4 @@ t/01_compile.t
 t/02_support.t
 t/03_usage.t
 t/04_from.t
-t/99_pod.t
+t/99_author.t

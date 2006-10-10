@@ -1,18 +1,18 @@
-name: Params-Coerce
-version: 0.13
 abstract: Allows your classes to do coercion of parameters
-author: Adam Kennedy <cpan@ali.as>
-license: perl
-distribution_type: module
-build_requires:
+author: Adam Kennedy <adamk@cpan.org>
+build_requires: 
   Test::More: 0.47
-  File::Spec: 0.82
-requires:
-  perl: 5.005
-  Carp: 0
-  Scalar::Util: 1.11
-  Params::Util: 0.05
-no_index:
-  directory:
+distribution_type: module
+generated_by: Module::Install version 0.64
+license: perl
+name: Params-Coerce
+no_index: 
+  directory: 
     - inc
-generated_by: Module::Install version 0.36
+    - t
+requires: 
+  Carp: 0
+  Params::Util: 0.05
+  Scalar::Util: 1.11
+  perl: 5.005
+version: 0.14

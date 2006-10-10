@@ -214,6 +214,7 @@ step is supported.
 
 =cut
 
+use 5.005;
 use strict;
 use Carp         ();
 use Scalar::Util ();
@@ -225,7 +226,7 @@ use Params::Util '_IDENTIFIER',
 
 use vars qw{$VERSION};
 BEGIN {
-	$VERSION = '0.13';
+	$VERSION = '0.14';
 }
 
 # The hint cache
@@ -420,11 +421,12 @@ For other issues, contact the maintainer
 
 =head1 AUTHORS
 
-Adam Kennedy, L<http://ali.as/>, cpan@ali.as
+Adam Kennedy E<lt>adamk@cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2004 - 2005 Adam Kennedy. All rights reserved.
+Copyright 2004 - 2006 Adam Kennedy.
+
 This program is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.
 

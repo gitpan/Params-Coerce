@@ -3,16 +3,9 @@
 # Using Params::Coerce the correct way, and "does stuff happen" tests
 
 use strict;
-use lib ();
-use UNIVERSAL 'isa';
-use File::Spec::Functions ':ALL';
 BEGIN {
-	$| = 1;
-	unless ( $ENV{HARNESS_ACTIVE} ) {
-		require FindBin;
-		chdir ($FindBin::Bin = $FindBin::Bin); # Avoid a warning
-		lib->import( catdir( updir(), updir(), 'modules') );
-	}
+	$|  = 1;
+	$^W = 1;
 }
 
 use Test::More tests => 34;
